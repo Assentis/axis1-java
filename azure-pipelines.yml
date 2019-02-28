@@ -67,10 +67,10 @@ steps:
   condition: startsWith(variables['Build.SourceBranch'], 'refs/pull')
 
 - task: PublishPipelineArtifact@0
-    displayName: 'Publish integration test results'
-    condition: succeededOrFailed()
-    inputs:
-      artifactName: 'integration-tests'
-      targetPath: 'maven/wsdl2java-maven-plugin/target/it'
+  displayName: 'Publish integration test results'
+  condition: succeededOrFailed()
+  inputs:
+    artifactName: 'integration-tests'
+    targetPath: 'maven/wsdl2java-maven-plugin/target/it'
 
 
