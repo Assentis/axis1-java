@@ -22,7 +22,7 @@
     <parent>
         <groupId>@project.groupId@</groupId>
         <artifactId>axis-project</artifactId>
-        <version>@project.version@</version>
+        <version>@revision@</version>
     </parent>
     <groupId>test</groupId>
     <artifactId>wsrf</artifactId>
@@ -31,7 +31,7 @@
         <dependency>
             <groupId>@project.groupId@</groupId>
             <artifactId>axis-rt-core</artifactId>
-            <version>@project.version@</version>
+            <version>@revision@</version>
         </dependency>
     </dependencies>
     <build>
@@ -39,7 +39,7 @@
             <plugin>
                 <groupId>@project.groupId@</groupId>
                 <artifactId>wsdl2java-maven-plugin</artifactId>
-                <version>@project.version@</version>
+                <version>@revision@</version>
                 <executions>
                     <execution>
                         <id>gen-sources</id>

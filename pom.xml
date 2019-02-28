@@ -27,34 +27,15 @@
     <groupId>org.apache.axis</groupId>
     <artifactId>axis-project</artifactId>
     <name>Axis</name>
-    <version>1.4.1-SNAPSHOT</version>
+    <version>${revision}</version>
     <packaging>pom</packaging>
     <url>${baseUrl}/</url>
     <issueManagement>
         <system>jira</system>
         <url>http://issues.apache.org/jira/browse/AXIS</url>
     </issueManagement>
-    <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/axis/axis1/java/trunk</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/axis/axis1/java/trunk</developerConnection>
-        <url>http://svn.apache.org/viewvc/axis/axis1/java/trunk</url>
-    </scm>
-    <mailingLists>
-        <mailingList>
-            <name>Developer List</name>
-            <subscribe>java-dev-subscribe@axis.apache.org</subscribe>
-            <unsubscribe>java-dev-unsubscribe@axis.apache.org</unsubscribe>
-            <post>java-dev@axis.apache.org</post>
-            <archive>http://mail-archives.apache.org/mod_mbox/axis-java-dev/</archive>
-        </mailingList>
-        <mailingList>
-            <name>User List</name>
-            <subscribe>axis1-java-user-subscribe@axis.apache.org</subscribe>
-            <unsubscribe>axis1-java-user-unsubscribe@axis.apache.org</unsubscribe>
-            <post>axis1-java-user@axis.apache.org</post>
-            <archive>http://mail-archives.apache.org/mod_mbox/axis-axis1-java-user/</archive>
-        </mailingList>
-    </mailingLists>
+   
+   
     <inceptionYear>2000</inceptionYear>
     <modules>
         <module>apidocs</module>
@@ -444,6 +425,31 @@
                 <artifactId>maven-scm-publish-plugin</artifactId>
                 <version>1.0-beta-2</version>
             </plugin>
+             <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
+                <version>1.1.0</version>
+                <configuration>
+                    <updatePomFile>true</updatePomFile>
+                    <flattenMode>resolveCiFriendliesOnly</flattenMode>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>flatten</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>flatten</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>flatten.clean</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
     <profiles>
@@ -522,14 +528,48 @@
         </plugins>
     </reporting>
     <properties>
+        <revision>1.4.1-assentis-SNAPSHOT</revision>
         <javaVersion>1.4</javaVersion>
         <baseUrl>http://axis.apache.org/axis/java</baseUrl>
         <baseSiteUrl>scm:svn:https://svn.apache.org/repos/asf/axis/site/axis/java</baseSiteUrl>
     </properties>
+    <repositories>
+    <repository>
+      <id>apache.snapshots.https</id>
+      <url>https://repository.apache.org/content/repositories/snapshots</url>
+      <snapshots>
+        <enabled>true</enabled>
+        <updatePolicy>always</updatePolicy>
+      </snapshots>
+    </repository>
+      <repository>
+        <id>dev-azure-com-assentis-3rdparty</id>
+        <url>https://pkgs.dev.azure.com/assentis/_packaging/3rdParty/maven/v1</url>
+        <releases>
+            <enabled>true</enabled>
+        </releases>
+        <snapshots>
+            <enabled>true</enabled>
+        </snapshots>
+      </repository>
+      <repository>
+        <id>dev-azure-com-assentis-maven_plugins</id>
+        <url>https://pkgs.dev.azure.com/assentis/_packaging/maven_plugins/maven/v1</url>
+        <releases>
+            <enabled>true</enabled>
+        </releases>
+        <snapshots>
+            <enabled>true</enabled>
+        </snapshots>
+        </repository>
+    </repositories>
     <distributionManagement>
-        <site>
-            <id>axis</id>
-            <url>${baseSiteUrl}/</url>
-        </site>
+        <repository>
+            <id>dev-azure-com-assentis-maven_plugins</id>
+            <name>maven_plugins</name>
+            <url>https://pkgs.dev.azure.com/assentis/_packaging/3rdParty/maven/v1</url>
+            <uniqueVersion>true</uniqueVersion>
+            <layout>default</layout>
+        </repository>
     </distributionManagement>
 </project>

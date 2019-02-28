@@ -1,0 +1,71 @@
+# Maven
+# Build your Java project and run tests with Apache Maven.
+# Add steps that analyze code, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/java
+
+pool:
+  vmImage: 'Ubuntu 16.04'
+
+variables:
+  patchBaseVersion: 1.4.1-assentis-1alpha # Carefully review before PR
+
+steps:
+
+  # branch builds are doing branch specific SNAPSHOT
+- task: Maven@3
+  name: 'Branch_Build_Task'
+  inputs:
+    mavenPomFile: 'pom.xml'
+    mavenOptions: '-Xmx3072m'
+    javaHomeOption: 'JDKVersion'
+    jdkVersionOption: '1.8'
+    jdkArchitectureOption: 'x64'
+    publishJUnitResults: false
+    testResultsFiles: '**/TEST-*.xml'
+    goals: 'deploy'
+    mavenFeedAuthenticate: true
+    options: '-B -Drevision=$(patchBaseVersion)-$(Build.SourceBranchName)-SNAPSHOT'
+    codeCoverageToolOption: 'None'
+    sonarQubeRunAnalysis: false
+  condition: and(not(startsWith(variables['Build.SourceBranch'], 'refs/pull')),ne(variables['Build.SourceBranch'], 'master'), ne(variables['Build.SourceBranch'], 'refs/heads/axis1-assentis'))
+
+  # master build is doing a release (no SNAPSHOT set). This requires to properly update the version 
+  # in this pipeline step each time one wants to do a release...
+- task: Maven@3
+  name: 'Release_Task'
+  inputs:
+    mavenPomFile: 'pom.xml'
+    mavenOptions: '-Xmx3072m'
+    javaHomeOption: 'JDKVersion'
+    jdkVersionOption: '1.8'
+    jdkArchitectureOption: 'x64'
+    publishJUnitResults: false
+    testResultsFiles: '**/TEST-*.xml'
+    goals: 'deploy'
+    mavenFeedAuthenticate: true
+    options: '-B -Drevision=$(patchBaseVersion)'
+    codeCoverageToolOption: 'None'
+    sonarQubeRunAnalysis: false
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/axis1-assentis')
+
+  # pull request builds are executing only the install maven goal
+- task: Maven@3
+  name: 'Pull_Request_Build_Task'
+  inputs:
+    mavenPomFile: 'pom.xml'
+    mavenOptions: '-Xmx3072m'
+    javaHomeOption: 'JDKVersion'
+    jdkVersionOption: '1.8'
+    jdkArchitectureOption: 'x64'
+    publishJUnitResults: false
+    testResultsFiles: '**/TEST-*.xml'
+    goals: 'install'
+    mavenFeedAuthenticate: true
+    options: '-B -Drevision=$(patchBaseVersion)-SNAPSHOT'
+    codeCoverageToolOption: 'None'
+    sonarQubeRunAnalysis: false
+  condition: startsWith(variables['Build.SourceBranch'], 'refs/pull')
+
+
+
+
