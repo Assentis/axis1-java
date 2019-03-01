@@ -7,7 +7,7 @@ pool:
   vmImage: 'Ubuntu 16.04'
 
 variables:
-  patchBaseVersion: 1.4.1-assentis-1 # Carefully review before PR
+  patchBaseVersion: 1.4.1-assentis-2 # Carefully review before PR
 
 steps:
 
