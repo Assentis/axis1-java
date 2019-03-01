@@ -1,12 +1,12 @@
 /*
  * Copyright 2001-2004 The Apache Software Foundation.
- *
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * 
  *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -39,8 +39,6 @@ import javax.naming.InvalidNameException;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.ldap.LdapName;
-import javax.naming.ldap.Rdn;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
@@ -51,20 +49,22 @@ import org.apache.axis.utils.StringUtils;
 import org.apache.axis.utils.XMLUtils;
 
 
+
 /**
  * SSL socket factory. It _requires_ a valid RSA key and
  * JSSE. (borrowed code from tomcat)
- *
+ * 
  * THIS CODE STILL HAS DEPENDENCIES ON sun.* and com.sun.*
  *
  * @author Davanum Srinivas (dims@yahoo.com)
+ *
  */
 public class JSSESocketFactory extends DefaultSocketFactory implements SecureSocketFactory {
 
     // This is a a sorted list, if you insert new elements do it orderdered.
     private final static String[] BAD_COUNTRY_2LDS =
         {"ac", "co", "com", "ed", "edu", "go", "gouv", "gov", "info",
-         "lg", "ne", "net", "or", "org"};
+            "lg", "ne", "net", "or", "org"};
     /** Field sslFactory           */
     protected SSLSocketFactory sslFactory = null;
 
@@ -80,11 +80,11 @@ public class JSSESocketFactory extends DefaultSocketFactory implements SecureSoc
     /**
      * Initialize the SSLSocketFactory
      * @throws IOException
-     */
+     */ 
     protected void initFactory() throws IOException {
         sslFactory = (SSLSocketFactory)SSLSocketFactory.getDefault();
     }
-
+    
     /**
      * creates a secure socket
      *
@@ -97,8 +97,8 @@ public class JSSESocketFactory extends DefaultSocketFactory implements SecureSoc
      * @throws Exception
      */
     public Socket create(
-        String host, int port, StringBuffer otherHeaders, BooleanHolder useFullURL)
-        throws Exception {
+            String host, int port, StringBuffer otherHeaders, BooleanHolder useFullURL)
+            throws Exception {
         if (sslFactory == null) {
             initFactory();
         }
@@ -129,7 +129,7 @@ public class JSSESocketFactory extends DefaultSocketFactory implements SecureSoc
             // The tunnel handshake method (condensed and made reflexive)
             OutputStream tunnelOutputStream = tunnel.getOutputStream();
             PrintWriter out = new PrintWriter(
-                new BufferedWriter(new OutputStreamWriter(tunnelOutputStream)));
+                    new BufferedWriter(new OutputStreamWriter(tunnelOutputStream)));
 
             // More secure version... engage later?
             // PasswordAuthentication pa =
@@ -144,14 +144,14 @@ public class JSSESocketFactory extends DefaultSocketFactory implements SecureSoc
             // tunnelPassword = new String(pa.getPassword());
             // }
             out.print("CONNECT " + host + ":" + port + " HTTP/1.0\r\n"
-                      + "User-Agent: AxisClient");
+                    + "User-Agent: AxisClient");
             if (tcp.getProxyUser().length() != 0 &&
                 tcp.getProxyPassword().length() != 0) {
 
                 // add basic authentication header for the proxy
                 String encodedPassword = XMLUtils.base64encode((tcp.getProxyUser()
-                                                                + ":"
-                                                                + tcp.getProxyPassword()).getBytes());
+                        + ":"
+                        + tcp.getProxyPassword()).getBytes());
 
                 out.print("\nProxy-Authorization: Basic " + encodedPassword);
             }
@@ -163,8 +163,8 @@ public class JSSESocketFactory extends DefaultSocketFactory implements SecureSoc
 
             if (log.isDebugEnabled()) {
                 log.debug(Messages.getMessage("isNull00", "tunnelInputStream",
-                                              "" + (tunnelInputStream
-                                                    == null)));
+                        "" + (tunnelInputStream
+                        == null)));
             }
             String replyStr = "";
 
@@ -190,20 +190,20 @@ public class JSSESocketFactory extends DefaultSocketFactory implements SecureSoc
                 }
             }
             if (StringUtils.startsWithIgnoreWhitespaces("HTTP/1.0 200", replyStr) &&
-                StringUtils.startsWithIgnoreWhitespaces("HTTP/1.1 200", replyStr)) {
+                    StringUtils.startsWithIgnoreWhitespaces("HTTP/1.1 200", replyStr)) {
                 throw new IOException(Messages.getMessage("cantTunnel00",
-                                                          new String[]{
-                                                              tcp.getProxyHost(),
-                                                              "" + tunnelPort,
-                                                              replyStr}));
+                        new String[]{
+                            tcp.getProxyHost(),
+                            "" + tunnelPort,
+                            replyStr}));
             }
 
             // End of condensed reflective tunnel handshake method
             sslSocket = sslFactory.createSocket(tunnel, host, port, true);
             if (log.isDebugEnabled()) {
                 log.debug(Messages.getMessage("setupTunnel00",
-                                              tcp.getProxyHost(),
-                                              "" + tunnelPort));
+                          tcp.getProxyHost(),
+                        "" + tunnelPort));
             }
         }
 
@@ -221,20 +221,20 @@ public class JSSESocketFactory extends DefaultSocketFactory implements SecureSoc
      * @param ssl
      * @throws IOException
      */
+    
+	private static void verifyHostName(String host, SSLSocket ssl)
+			throws IOException {
+		if (host == null) {
+			throw new IllegalArgumentException("host to verify was null");
+		}
 
-    private static void verifyHostName(String host, SSLSocket ssl)
-        throws IOException {
-        if (host == null) {
-            throw new IllegalArgumentException("host to verify was null");
-        }
-
-        SSLSession session = ssl.getSession();
-        if (session == null) {
+		SSLSession session = ssl.getSession();
+		if (session == null) {
             // In our experience this only happens under IBM 1.4.x when
             // spurious (unrelated) certificates show up in the server's chain.
             // Hopefully this will unearth the real problem:
-            InputStream in = ssl.getInputStream();
-            in.available();
+			InputStream in = ssl.getInputStream();
+			in.available();
             /*
                  If you're looking at the 2 lines of code above because you're
                  running into a problem, you probably have two options:
@@ -252,96 +252,96 @@ public class JSSESocketFactory extends DefaultSocketFactory implements SecureSoc
 
             // If ssl.getInputStream().available() didn't cause an exception,
             // maybe at least now the session is available?
-            session = ssl.getSession();
-            if (session == null) {
+			session = ssl.getSession();
+			if (session == null) {
                 // If it's still null, probably a startHandshake() will
                 // unearth the real problem.
-                ssl.startHandshake();
+				ssl.startHandshake();
 
                 // Okay, if we still haven't managed to cause an exception,
                 // might as well go for the NPE.  Or maybe we're okay now?
-                session = ssl.getSession();
-            }
-        }
+				session = ssl.getSession();
+			}
+		}
 
-        Certificate[] certs = session.getPeerCertificates();
-        verifyHostName(host.trim().toLowerCase(Locale.US),  (X509Certificate) certs[0]);
-    }
-    /**
-     * Extract the names from the certificate and tests host matches one of them
-     * @param host
-     * @param cert
-     * @throws SSLException
-     */
+		Certificate[] certs = session.getPeerCertificates();
+		verifyHostName(host.trim().toLowerCase(Locale.US),  (X509Certificate) certs[0]);
+	}
+	/**
+	 * Extract the names from the certificate and tests host matches one of them
+	 * @param host
+	 * @param cert
+	 * @throws SSLException
+	 */
 
-    private static void verifyHostName(final String host, X509Certificate cert)
-        throws SSLException {
+	private static void verifyHostName(final String host, X509Certificate cert)
+			throws SSLException {
         // I'm okay with being case-insensitive when comparing the host we used
         // to establish the socket to the hostname in the certificate.
         // Don't trim the CN, though.
+        
+		String[] cns = getCNs(cert);
+		String[] subjectAlts = getDNSSubjectAlts(cert);
+		verifyHostName(host, cns, subjectAlts);
 
-        String[] cns = getCNs(cert);
-        String[] subjectAlts = getDNSSubjectAlts(cert);
-        verifyHostName(host, cns, subjectAlts);
+	}
 
-    }
+	/**
+	 * Extract all alternative names from a certificate.
+	 * @param cert
+	 * @return
+	 */
+	private static String[] getDNSSubjectAlts(X509Certificate cert) {
+		LinkedList subjectAltList = new LinkedList();
+		Collection c = null;
+		try {
+			c = cert.getSubjectAlternativeNames();
+		} catch (CertificateParsingException cpe) {
+			// Should probably log.debug() this?
+			cpe.printStackTrace();
+		}
+		if (c != null) {
+			Iterator it = c.iterator();
+			while (it.hasNext()) {
+				List list = (List) it.next();
+				int type = ((Integer) list.get(0)).intValue();
+				// If type is 2, then we've got a dNSName
+				if (type == 2) {
+					String s = (String) list.get(1);
+					subjectAltList.add(s);
+				}
+			}
+		}
+		if (!subjectAltList.isEmpty()) {
+			String[] subjectAlts = new String[subjectAltList.size()];
+			subjectAltList.toArray(subjectAlts);
+			return subjectAlts;
+		} else {
+			return new String[0];
+		}
+	        
+	}
+	/**
+	 * Verifies
+	 * @param host
+	 * @param cns
+	 * @param subjectAlts
+	 * @throws SSLException
+	 */
 
-    /**
-     * Extract all alternative names from a certificate.
-     * @param cert
-     * @return
-     */
-    private static String[] getDNSSubjectAlts(X509Certificate cert) {
-        LinkedList subjectAltList = new LinkedList();
-        Collection c = null;
-        try {
-            c = cert.getSubjectAlternativeNames();
-        } catch (CertificateParsingException cpe) {
-            // Should probably log.debug() this?
-            cpe.printStackTrace();
-        }
-        if (c != null) {
-            Iterator it = c.iterator();
-            while (it.hasNext()) {
-                List list = (List) it.next();
-                int type = ((Integer) list.get(0)).intValue();
-                // If type is 2, then we've got a dNSName
-                if (type == 2) {
-                    String s = (String) list.get(1);
-                    subjectAltList.add(s);
-                }
-            }
-        }
-        if (!subjectAltList.isEmpty()) {
-            String[] subjectAlts = new String[subjectAltList.size()];
-            subjectAltList.toArray(subjectAlts);
-            return subjectAlts;
-        } else {
-            return new String[0];
-        }
+	private static void verifyHostName(final String host, String[] cns, String[] subjectAlts)throws SSLException{
+		StringBuffer cnTested = new StringBuffer();
 
-    }
-    /**
-     * Verifies
-     * @param host
-     * @param cn
-     * @param subjectAlts
-     * @throws SSLException
-     */
-
-    private static void verifyHostName(final String host, String[] cns, String[] subjectAlts)throws SSLException{
-        StringBuffer cnTested = new StringBuffer();
-
-        for (int i = 0; i < subjectAlts.length; i++){
-            String name = subjectAlts[i];
-            if (name != null) {
-                name = name.toLowerCase(Locale.US);
-                if (verifyHostName(host, name)){
-                    return;
-                }
-                cnTested.append("/").append(name);
-            }
-        }
+		for (int i = 0; i < subjectAlts.length; i++){
+			String name = subjectAlts[i];
+			if (name != null) {
+				name = name.toLowerCase(Locale.US);
+				if (verifyHostName(host, name)){
+					return;
+				}
+				cnTested.append("/").append(name);
+			}				
+		}
         for (int i = 0; i < cns.length; i++) {
             String cn = cns[i];
             if (cn != null) {
@@ -352,114 +352,115 @@ public class JSSESocketFactory extends DefaultSocketFactory implements SecureSoc
                 cnTested.append("/").append(cn);
             }
         }
-        throw new SSLException("hostname in certificate didn't match: <"
-                               + host + "> != <" + cnTested + ">");
-    }
-
-    private static boolean verifyHostName(final String host, final String cn){
-        if (doWildCard(cn) && !isIPAddress(host)) {
-            return matchesWildCard(cn, host);
-        }
-        return host.equalsIgnoreCase(cn);
-    }
+		throw new SSLException("hostname in certificate didn't match: <"
+					+ host + "> != <" + cnTested + ">");
+	}		
+	
+	private static boolean verifyHostName(final String host, final String cn){
+		if (doWildCard(cn) && !isIPAddress(host)) {
+			return matchesWildCard(cn, host);
+		} 
+		return host.equalsIgnoreCase(cn);
+	}
     private static boolean doWildCard(String cn) {
-        // Contains a wildcard
-        // wildcard in the first block
-        // not an ipaddress (ip addres must explicitily be equal)
-        // not using 2nd level common tld : ex: not for *.co.uk
-        String parts[] = cn.split("\\.");
-        return parts.length >= 3 &&
-               parts[0].endsWith("*") &&
-               acceptableCountryWildcard(cn) &&
-               !isIPAddress(cn);
+		// Contains a wildcard
+		// wildcard in the first block
+    	// not an ipaddress (ip addres must explicitily be equal)
+    	// not using 2nd level common tld : ex: not for *.co.uk
+    	String parts[] = cn.split("\\.");
+    	return parts.length >= 3 &&
+    			parts[0].endsWith("*") &&
+    			acceptableCountryWildcard(cn) &&
+    			!isIPAddress(cn);
     }
 
-    private static final Pattern IPV4_PATTERN =
-        Pattern.compile("^(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(\\.(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}$");
+	private static final Pattern IPV4_PATTERN =
+			Pattern.compile("^(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(\\.(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}$");
 
-    private static final Pattern IPV6_STD_PATTERN =
-        Pattern.compile("^(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$");
+	private static final Pattern IPV6_STD_PATTERN = 
+			Pattern.compile("^(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$");
 
-    private static final Pattern IPV6_HEX_COMPRESSED_PATTERN =
-        Pattern.compile("^((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)::((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)$");
-
-
-    private static boolean isIPAddress(final String hostname) {
-        return hostname != null
-               && (
-                   IPV4_PATTERN.matcher(hostname).matches()
-                   || IPV6_STD_PATTERN.matcher(hostname).matches()
-                   || IPV6_HEX_COMPRESSED_PATTERN.matcher(hostname).matches()
-               );
-
-    }
-
-    private static boolean acceptableCountryWildcard(final String cn) {
-        // The CN better have at least two dots if it wants wildcard action,
-        // but can't be [*.co.uk] or [*.co.jp] or [*.org.uk], etc...
-        // The [*.co.uk] problem is an interesting one. Should we just
-        // hope that CA's would never foolishly allow such a
-        // certificate to happen?
-
-        String[] parts = cn.split("\\.");
-        // Only checks for 3 levels, with country code of 2 letters.
-        if (parts.length > 3 || parts[parts.length - 1].length() != 2) {
-            return true;
-        }
-        String countryCode = parts[parts.length - 2];
-        return Arrays.binarySearch(BAD_COUNTRY_2LDS, countryCode) < 0;
-    }
-
-    private static boolean matchesWildCard(final String cn,
-                                           final String hostName) {
-        String parts[] = cn.split("\\.");
-        boolean match = false;
-        String firstpart = parts[0];
-        if (firstpart.length() > 1) {
-            // server∗
-            // e.g. server
-            String prefix =  firstpart.substring(0, firstpart.length() - 1);
-            // skipwildcard part from cn
-            String suffix = cn.substring(firstpart.length());
-            // skip wildcard part from host
-            String hostSuffix = hostName.substring(prefix.length());
-            match = hostName.startsWith(prefix) && hostSuffix.endsWith(suffix);
-        } else {
-            match = hostName.endsWith(cn.substring(1));
-        }
-        if (match) {
-            // I f we ’ r e i n s t r i c t mode ,
-            // [ ∗.foo.com] is not allowed to match [a.b.foo.com]
-            match = countDots(hostName) == countDots(cn);
-        }
-        return match;
-    }
-
-    private static int countDots(final String data) {
-        int dots = 0;
-        for (int i = 0; i < data.length(); i++) {
-            if (data.charAt(i) == '.') {
-                dots += 1;
-            }
-        }
-        return dots;
-    }
+	private static final Pattern IPV6_HEX_COMPRESSED_PATTERN = 
+			Pattern.compile("^((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)::((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)$");
 
 
-    private static String[] getCNs(X509Certificate cert) {
-        // Note:  toString() seems to do a better job than getName()
-        //
-        // For example, getName() gives me this:
-        // 1.2.840.113549.1.9.1=#16166a756c6975736461766965734063756362632e636f6d
-        //
-        // whereas toString() gives me this:
-        // EMAILADDRESS=juliusdavies@cucbc.com
-        String subjectPrincipal = cert.getSubjectX500Principal().toString();
+	private static boolean isIPAddress(final String hostname) {
+		return hostname != null
+				&& (
+						IPV4_PATTERN.matcher(hostname).matches()
+						|| IPV6_STD_PATTERN.matcher(hostname).matches() 
+						|| IPV6_HEX_COMPRESSED_PATTERN.matcher(hostname).matches()
+		);
 
-        return getCNs(subjectPrincipal);
+	}
 
-    }
-    private static String[] getCNs(String subjectPrincipal) {
+	private static boolean acceptableCountryWildcard(final String cn) {
+		// The CN better have at least two dots if it wants wildcard action,
+		// but can't be [*.co.uk] or [*.co.jp] or [*.org.uk], etc...
+		// The [*.co.uk] problem is an interesting one. Should we just
+		// hope that CA's would never foolishly allow such a
+		// certificate to happen?
+    	
+		String[] parts = cn.split("\\.");
+		// Only checks for 3 levels, with country code of 2 letters.
+		if (parts.length > 3 || parts[parts.length - 1].length() != 2) {
+			return true;
+		}
+		String countryCode = parts[parts.length - 2];
+		return Arrays.binarySearch(BAD_COUNTRY_2LDS, countryCode) < 0;
+	}
+
+	private static boolean matchesWildCard(final String cn,
+			final String hostName) {
+		String parts[] = cn.split("\\.");
+		boolean match = false;
+		String firstpart = parts[0];
+		if (firstpart.length() > 1) {
+			// server∗
+			// e.g. server
+			String prefix =  firstpart.substring(0, firstpart.length() - 1);
+			// skipwildcard part from cn
+			String suffix = cn.substring(firstpart.length()); 
+			// skip wildcard part from host
+			String hostSuffix = hostName.substring(prefix.length());			
+			match = hostName.startsWith(prefix) && hostSuffix.endsWith(suffix);
+		} else {
+			match = hostName.endsWith(cn.substring(1));
+		}
+		if (match) {
+			// I f we ’ r e i n s t r i c t mode ,
+			// [ ∗.foo.com] is not allowed to match [a.b.foo.com]
+			match = countDots(hostName) == countDots(cn);
+		}
+		return match;
+	}
+
+	private static int countDots(final String data) {
+		int dots = 0;
+		for (int i = 0; i < data.length(); i++) {
+			if (data.charAt(i) == '.') {
+				dots += 1;
+			}
+		}
+		return dots;
+	}
+
+
+	private static String[] getCNs(X509Certificate cert) {
+          // Note:  toString() seems to do a better job than getName()
+          //
+          // For example, getName() gives me this:
+          // 1.2.840.113549.1.9.1=#16166a756c6975736461766965734063756362632e636f6d
+          //
+          // whereas toString() gives me this:
+          // EMAILADDRESS=juliusdavies@cucbc.com        
+		String subjectPrincipal = cert.getSubjectX500Principal().toString();
+		
+		return getCNs(subjectPrincipal);
+
+	}
+
+	private static String[] getCNs(String subjectPrincipal) {
         if (subjectPrincipal == null) {
             return null;
         }
@@ -484,4 +485,6 @@ public class JSSESocketFactory extends DefaultSocketFactory implements SecureSoc
         }
         catch (InvalidNameException ignore) { }
         return cns.isEmpty() ? null : (String[]) cns.toArray(new String[ cns.size() ]);
-    }
+	}
+
+}
