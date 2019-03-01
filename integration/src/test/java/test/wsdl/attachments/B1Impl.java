@@ -35,7 +35,7 @@ public class B1Impl implements test.wsdl.attachments.Pt1 {
     public void getCompanyInfo(String tickerSymbol, FloatHolder result, StringHolder docs, ImageHolder logo) throws RemoteException {
         result.value = 13.4f;
         docs.value = tickerSymbol;
-        BufferedImage image = new BufferedImage(24, 24, BufferedImage.TYPE_INT_ARGB);
+        BufferedImage image = new BufferedImage(24, 24, BufferedImage.TYPE_INT_RGB);
         Graphics g = image.createGraphics();
         g.drawLine(0, 0, 24, 24);
         g.dispose();
